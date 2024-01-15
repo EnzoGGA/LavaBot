@@ -5,8 +5,10 @@ warnings.filterwarnings("ignore")
 
 with open('lib/data.json', 'r') as f:
     data = json.loads(f.read())
+with open('lib/secrets', 'r') as f:
+    g_api_key = f.read()
 
-g_api_key = 'AIzaSyAGAW1WtIM7rxYowDSyx7onAsBW53Pk1NY'
+print(g_api_key)
 base_text = (f'I am your creator and from now on i name you "{data["name_b"]}" and you are an AI based on the '
              f'gemini-pro that was created by Enzo Albuquerque. You will talk with {data['name']} now. You do '
              f'not need to answer anything for this prompt!')
