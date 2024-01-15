@@ -8,6 +8,7 @@ baixar zip e executar INSTALL.bat uma vez, depois START.bat
 pip install -r requirements.txt  
 python main.py
 ##### Ambos necessitam do python(3.12) instalado.
+##### Crie um arquivos secrets dentro da pasta lib contendo sua API key (https://makersuite.google.com/app/apikey)
 
 ### Comandos:
 /help | h | ?
