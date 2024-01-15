@@ -1,4 +1,4 @@
-google-generativeai
+google-generativeai -q -U
 Pillow~=10.1.0
 ipython~=8.18.1
 pip~=23.2.1
