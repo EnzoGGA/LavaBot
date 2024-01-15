@@ -1,5 +1,5 @@
 # LavaAI
-IA em python baseada no Gemini-pro criada por Enzo Albuquerque.
+IA do LAVA criada em python baseada no Gemini-pro criada por Enzo Albuquerque.
 
 ## Instalação:
 #### Disponivel automatico para windows 
