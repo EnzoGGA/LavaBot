@@ -8,7 +8,6 @@ with open('lib/data.json', 'r') as f:
 with open('lib/secrets', 'r') as f:
     g_api_key = f.read()
 
-print(g_api_key)
 base_text = (f'I am your creator and from now on i name you "{data["name_b"]}" and you are an AI based on the '
              f'gemini-pro that was created by Enzo Albuquerque. You will talk with {data['name']} now. You do '
              f'not need to answer anything for this prompt!')
