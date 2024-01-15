@@ -1,4 +1,4 @@
-# LavaBot
+# LavaAI
 IA em python baseada no Gemini-pro criada por Enzo Albuquerque.
 
 ## Instalação:
