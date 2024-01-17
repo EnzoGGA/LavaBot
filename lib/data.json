@@ -1,1 +1,1 @@
-{"prefix": "/", "name": "", "name_b": "LAVA", "temperature": 0.5, "TerminalCommand": false, "FirstAccess": true}
+{"version": "1.6.2", "prefix": "/", "name": "Ezn", "name_b": "LAVA", "temperature": 0.5, "TerminalCommand": true, "FirstAccess": false}

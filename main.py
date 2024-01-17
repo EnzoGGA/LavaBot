@@ -1,8 +1,7 @@
-print('Inicializando... (V1.6)')
+from lib import keys
 import google.generativeai as genai
 import os
 import json
-from lib import keys
 from google.generativeai.types import generation_types as gt
 
 send = (lambda text, sty=0, color=0, back=40, end='\n': print(f"\033[{sty};{color};{back}m{text}\033[m", end=end))
@@ -76,7 +75,7 @@ def chat_load(num, chat: genai.GenerativeModel, nome: str, prefix: str, bot: str
     content_g = data['content']
     content = content_g[3:]
     clear()
-    send(f"Titulo: {title}", color=32)
+    send(f"Titulo: {title}\nTemperatura atual da IA: {temp}", color=32)
     for e in content:
         if e['role'] == 'user':
             send(f"{nome}: {e['parts'][0]}")
@@ -87,8 +86,9 @@ def chat_load(num, chat: genai.GenerativeModel, nome: str, prefix: str, bot: str
 
 
 def init_chat(chat: genai.GenerativeModel, nome: str, prefix: str, bot: str, history: list, temp: float, is_init=True,
-              title='',num_chat=None, prompt=None):
+              title='', num_chat=None, prompt=None, passou=True):
     if is_init:
+        passou = False
         with open('hist/hist.json', 'r') as f:
             num_chat = str(len(json.loads(f.read()).keys()) + 1)
         text = send_message(f'Olá, meu nome é {nome}!', chat, history, temp)
@@ -99,22 +99,26 @@ def init_chat(chat: genai.GenerativeModel, nome: str, prefix: str, bot: str, his
         title = (chat.generate_content(f"Crie apenas um pequeno titulo para o prompt a seguir:\n{prompt}",
                                        generation_config=genai.types.GenerationConfig(temperature=0),
                                        safety_settings=safety_settings).text)
+
     while True:
-        if not prompt[:1] == prefix:
-            try:
-                response = send_message(prompt, chat, history, temp)
-                send(f'{bot}: ', end='')
-                send(response, color=36)
-            except gt.BlockedPromptException:
-                response = chat.generate_content(
-                    'Crie uma pequena frase falando algo tipo: Não posso responder isso pois '
-                    'sou apenas uma IA').text
-                hist_m(history, response, 'model')
-                send(f'{bot}: ', end='')
-                send(response, color=31)
-            mudar_hist(history, title, num_chat)
-        else:
-            command(prompt, True)
+        if prompt.replace(' ', ''):
+            if not prompt[:1] == prefix:
+                try:
+                    response = send_message(prompt, chat, history, temp)
+                    send(f'{bot}: ', end='')
+                    send(response, color=36)
+                except gt.BlockedPromptException:
+                    response = chat.generate_content(
+                        'Crie uma pequena frase falando algo tipo: Não posso responder isso pois '
+                        'sou apenas uma IA').text
+                    hist_m(history, response, 'model')
+                    send(f'{bot}: ', end='')
+                    send(response, color=31)
+                mudar_hist(history, title, num_chat)
+                if not passou:
+                    chat_load(num_chat, chat, nome, prefix, bot, temp)
+            else:
+                command(prompt, True)
         prompt = input(f"{nome}: ")
 
 
@@ -136,7 +140,7 @@ def command(msg, is_chat=False):
     comandos = keys.comandos
     is_prefix = msg[:1] == prefix
     if is_prefix or not is_chat:
-        options = msg.lstrip(msg.lstrip(prefix).split()[0]).strip()
+        options = msg.lstrip(msg.split()[0]).strip()
         msg = msg.lstrip(prefix).split()[0].lower()
         if msg in comandos:
             if msg in ['help', 'h', '?']:
@@ -167,7 +171,6 @@ def command(msg, is_chat=False):
                     send('Você ainda não tem historico!', color=31)
             elif msg in ['cls', 'clear']:
                 clear()
-                pass
             elif msg in ['del', 'delete_chat', 'delete']:
                 with open('hist/hist.json', 'r') as f:
                     len_hist = len(json.loads(f.read()).keys())
@@ -220,7 +223,7 @@ def command(msg, is_chat=False):
             elif msg in ['temp', 'temperatura', 'temperature']:
                 if options:
                     try:
-                        options = float(options)
+                        options = float(options.replace(',', '.'))
                         if 0 <= options <= 1:
                             mudar_json('temperature', options)
                             send(f"Temperature alterado para {options}", color=32)
@@ -231,7 +234,7 @@ def command(msg, is_chat=False):
                 else:
                     try:
                         send(f"Temperature = {temp}", color=32)
-                        op = float(input("Digite a temperatura que deseja: "))
+                        op = float(input("Digite a temperatura que deseja: ").replace(',', '.'))
                         if 0 <= op <= 1:
                             mudar_json('temperature', op)
                             send(f"Temperature alterado para {op}", color=32)
@@ -243,11 +246,14 @@ def command(msg, is_chat=False):
                 new = input("Digite o prefixo de sua preferencia: ") if not options else options
                 mudar_json('prefix', options if options else new)
                 send(f'Prefixo alterado para {new}', color=32)
+            elif msg in ['v', 'version', 'ver']:
+                send(f'LavaAI versão: {data["version"]}', color=32)
             elif msg in ['terminalCommand', 'tc']:
                 if options in ['0', '1']:
                     mudar_json('TerminalCommand', True if options == '1' else False)
                     send(f"TerminalCommand alterado para {'true' if options == '1' else 'false'}", color=32)
             elif msg in ['nome', 'name']:
+                send(f"Nome atual: {nome}", color=32)
                 new = input("Digite o seu nome: ") if not options else options
                 mudar_json('name', options if options else new)
                 send(f'Nome alterado para {new}', color=32)
@@ -258,7 +264,7 @@ def command(msg, is_chat=False):
             elif msg == 'new':
                 send("Inicializando novo chat", color=32)
                 new_chat(nome, prefix, bot, temp, base_hist)
-            elif msg in ['chat', 'chats']:
+            elif msg in ['open', 'chat', 'chats']:
                 chat = genai.GenerativeModel('gemini-pro',
                                              generation_config=genai.types.GenerationConfig(
                                                  temperature=temp))
@@ -286,7 +292,6 @@ def command(msg, is_chat=False):
                             send("Você não tem chats ativos", color=31)
                     except ValueError:
                         send("Digite um valor valido!", color=31)
-
         else:
             if data["TerminalCommand"]:
                 msg = msg.lstrip(prefix).split()[0]
@@ -299,16 +304,16 @@ def command(msg, is_chat=False):
 
 
 def main():
-    if mudar_json()['FirstAccess']:
+    data = mudar_json()
+    if data['FirstAccess']:
         mudar_json("name", input("Digite seu nome: "))
         mudar_json('FirstAccess', False)
-    data = mudar_json()
-    send(f'Olá {data['name']}, bem vindo a {data["name_b"]}, a IA desenvolvida por ezn usando a api do Gemini. Digite '
-         f'seu comando para continuar ou digite {data['prefix']}help para o menu de ajuda. Use CTRL+C para sair ou '
+    send(f'Olá {data['name']}, bem vindo(a) a {data["name_b"]}. O projeto LavaAI foi desenvolvida por Enzo '
+         f'Albuquerque usando a api do Gemini. Digite seu comando para continuar ou digite {data['prefix']}help para '
+         f'o menu de ajuda. Use CTRL+C para sair ou '
          f'{data["prefix"]}exit', color=34)
     while True:
-        send('> ', end='')
-        msg = input()
+        msg = input('> ')
         if msg:
             command(msg)
 
