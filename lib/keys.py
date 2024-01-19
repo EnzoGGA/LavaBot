@@ -52,9 +52,9 @@ Uso: fecha o aplicativo.'''
 
 
 loc = get('http://ipinfo.io/json').json()
-with open('data.json', 'r') as f:
+with open('lib/data.json', 'r') as f:
     data = json.loads(f.read())
-with open('secrets', 'r') as f:
+with open('lib/secrets', 'r') as f:
     g_api_key = f.read()
 print(f'Inicializando... (V{data["version"]})')
 base_text = (f'I am your creator and from now your name is "{data["name_b"]}" and you are an AI based on the '
@@ -63,7 +63,6 @@ base_text = (f'I am your creator and from now your name is "{data["name_b"]}" an
              f'longitude: {float(loc['loc'].split(',')[1])}.\nHere is some informations:\nYour version is currently: '
              f'{data["version"]}.\nYou are running on a console, so you cant use anything that a console '
              f'doesnt support.')
-print(base_text)
 comandos = ['help', 'h', '?', 'new', 'exit', 'chats', 'quit', 'clear', 'cls', 'prefix', 'terminalcommand', 'tc', 'nome',
             'name', 'bot', 'name_b', 'hst', 'historico', 'hist', 'del', 'delete_chat', 'delete', 'gen', 'generate',
             'gerar', 'temp', 'temperature', 'chat', 'open', 'v', 'version', 'ver']
